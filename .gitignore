@@ -1,0 +1,20 @@
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Binaries
+bin/
+out/
+
+# Environment
+.env
+cmd/auction/.env
+
+# Dependencies
+vendor/
+
+# OS
+.DS_Store
+Thumbs.db
