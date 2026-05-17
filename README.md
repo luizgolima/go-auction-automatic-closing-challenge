@@ -107,6 +107,23 @@ curl -i http://localhost:8080/auction/<ID>
 **Wait for expiration and check again:**
 The status should now be `"status": 1`.
 
+### 4. Place a Bid
+```bash
+curl -i -X POST http://localhost:8080/bid \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "any-user-id",
+    "auction_id": "<ID>",
+    "amount": 1500.0
+  }'
+```
+
+### 5. Find the Winning Bid
+Once the auction is completed, you can check who won:
+```bash
+curl -i http://localhost:8080/auction/winner/<ID>
+```
+
 ---
 
 ## 🛠️ Implementation Details
