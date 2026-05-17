@@ -153,6 +153,18 @@ curl -i http://localhost:8080/bid/your-auction-id-here
 
 ---
 
+## 🛠️ Setup & Seed Data
+
+Since the system does not have a user creation endpoint, you need to create a user manually in the database to place bids:
+
+### Create a Test User
+Run this command while the containers are active:
+```bash
+docker compose exec mongodb mongosh auctions -u admin -p admin --authenticationDatabase admin --eval "db.users.insertOne({_id: '1', name: 'User Test'})"
+```
+
+---
+
 ## 🛠️ Implementation Details
 
 The core logic for automatic closing resides in `internal/infra/database/auction/create_auction.go`. Upon inserting a new auction, a Goroutine is spawned:
