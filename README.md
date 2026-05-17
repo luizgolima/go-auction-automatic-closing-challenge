@@ -71,11 +71,35 @@ go test ./internal/infra/database/auction/...
 
 ---
 
-## 📊 Testing the Auction System
+## 📡 API Reference
 
-Since the base project does not return the ID in the creation response, follow this flow to test the automatic closing:
+### Auctions
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/auction` | Create a new auction |
+| `GET` | `/auction` | List auctions (Filter by `status`, `category`, `productName`) |
+| `GET` | `/auction/:auctionId` | Get auction details by ID |
+| `GET` | `/auction/winner/:auctionId` | Get the winning bid for an auction |
+
+### Bids
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/bid` | Place a new bid |
+| `GET` | `/bid/:auctionId` | List all bids for a specific auction |
+
+### Users
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/user/:userId` | Get user details by ID |
+
+---
+
+## 📊 Complete Testing Flow
+
+Follow these steps to test the full lifecycle of an auction, including the **Automatic Closing** feature.
 
 ### 1. Create a New Auction
+Initially, the auction is created with status `Active (0)`.
 ```bash
 curl -i -X POST http://localhost:8080/auction \
   -H "Content-Type: application/json" \
@@ -86,42 +110,45 @@ curl -i -X POST http://localhost:8080/auction \
     "condition": 0
   }'
 ```
-*Response: `201 Created`*
 
-### 2. List Active Auctions to Find the ID
-The system requires the `status=0` (Active) parameter to list auctions.
+### 2. Retrieve the Auction ID
+Since the creation does not return the ID, list the active auctions:
 ```bash
 curl -i "http://localhost:8080/auction?status=0"
 ```
-*Look for the `"id"` of the auction you just created.*
+*Copy the `"id"` field from the response.*
 
-### 3. Check Status and Wait for Closing
-Initially, the status will be `0` (Active). After the `AUCTION_DURATION` expires (default 5s in .env), the auction will move to status `1` (Completed).
-
-**Check specific auction:**
-```bash
-# Replace <ID> with the ID from step 2
-curl -i http://localhost:8080/auction/<ID>
-```
-
-**Wait for expiration and check again:**
-The status should now be `"status": 1`.
-
-### 4. Place a Bid
+### 3. Place Bids (While Active)
+Place one or more bids before the timer expires.
 ```bash
 curl -i -X POST http://localhost:8080/bid \
   -H "Content-Type: application/json" \
   -d '{
-    "user_id": "any-user-id",
-    "auction_id": "<ID>",
-    "amount": 1500.0
+    "user_id": "user-uuid-here",
+    "auction_id": "your-auction-id-here",
+    "amount": 5000.0
   }'
 ```
 
-### 5. Find the Winning Bid
-Once the auction is completed, you can check who won:
+### 4. Wait for Automatic Closing
+Wait for the `AUCTION_DURATION` (configured in `.env`) to pass. The background Goroutine will automatically update the status to `Completed (1)`.
+
+Check the status:
 ```bash
-curl -i http://localhost:8080/auction/winner/<ID>
+curl -i http://localhost:8080/auction/your-auction-id-here
+```
+*Expected: `"status": 1`*
+
+### 5. Verify the Winner
+Once closed, you can retrieve the winning bid:
+```bash
+curl -i http://localhost:8080/auction/winner/your-auction-id-here
+```
+
+### 6. List All Bids
+View all bids placed during the auction:
+```bash
+curl -i http://localhost:8080/bid/your-auction-id-here
 ```
 
 ---
