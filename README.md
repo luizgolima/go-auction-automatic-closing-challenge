@@ -124,7 +124,7 @@ Place one or more bids before the timer expires.
 curl -i -X POST http://localhost:8080/bid \
   -H "Content-Type: application/json" \
   -d '{
-    "user_id": "user-uuid-here",
+    "user_id": "809d3000-0935-4340-9831-29479603091e",
     "auction_id": "your-auction-id-here",
     "amount": 5000.0
   }'
@@ -160,7 +160,7 @@ Since the system does not have a user creation endpoint, you need to create a us
 ### Create a Test User
 Run this command while the containers are active:
 ```bash
-docker compose exec mongodb mongosh auctions -u admin -p admin --authenticationDatabase admin --eval "db.users.insertOne({_id: '1', name: 'User Test'})"
+docker compose exec mongodb mongosh auctions -u admin -p admin --authenticationDatabase admin --eval "db.users.insertOne({_id: '809d3000-0935-4340-9831-29479603091e', name: 'User Test'})"
 ```
 
 ---
