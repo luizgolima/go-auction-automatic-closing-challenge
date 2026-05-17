@@ -73,34 +73,39 @@ go test ./internal/infra/database/auction/...
 
 ## 📊 Testing the Auction System
 
+Since the base project does not return the ID in the creation response, follow this flow to test the automatic closing:
+
 ### 1. Create a New Auction
 ```bash
 curl -i -X POST http://localhost:8080/auction \
   -H "Content-Type: application/json" \
   -d '{
-    "product_name": "Go Expert Course",
-    "category": "Education",
-    "description": "The best Go course in the world",
+    "product_name": "Macbook Pro M3",
+    "category": "Eletrônicos",
+    "description": "64GB RAM, 1TB SSD",
     "condition": 0
   }'
 ```
+*Response: `201 Created`*
 
-### 2. Find Auction and Check Status
-Initially, the status will be `0` (Active). After `AUCTION_DURATION`, it will change to `1` (Completed).
+### 2. List Active Auctions to Find the ID
+The system requires the `status=0` (Active) parameter to list auctions.
 ```bash
-curl -i http://localhost:8080/auction?status=0
+curl -i "http://localhost:8080/auction?status=0"
+```
+*Look for the `"id"` of the auction you just created.*
+
+### 3. Check Status and Wait for Closing
+Initially, the status will be `0` (Active). After the `AUCTION_DURATION` expires (default 5s in .env), the auction will move to status `1` (Completed).
+
+**Check specific auction:**
+```bash
+# Replace <ID> with the ID from step 2
+curl -i http://localhost:8080/auction/<ID>
 ```
 
-### 3. Place a Bid
-```bash
-curl -i -X POST http://localhost:8080/bid \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "any-user-id",
-    "auction_id": "the-auction-id",
-    "amount": 100.0
-  }'
-```
+**Wait for expiration and check again:**
+The status should now be `"status": 1`.
 
 ---
 
