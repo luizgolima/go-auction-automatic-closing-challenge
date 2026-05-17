@@ -148,7 +148,8 @@ curl -i http://localhost:8080/auction/winner/your-auction-id-here
 ### 6. List All Bids
 View all bids placed during the auction:
 ```bash
-curl -i http://localhost:8080/bid/your-auction-id-here
+# Replace <ID> with your auction ID
+curl -i http://localhost:8080/bid/<ID>
 ```
 
 ---
